@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'jazzmin',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -254,3 +256,21 @@ SWAGGER_SETTINGS = {
         'rest_framework.permissions.AllowAny',
     ),
 }
+
+
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ALLOW_HEADERS = [
+    'accept', 'accept-encoding', 'authorization', 'content-type', 'dnt',
+    'origin', 'user-agent', 'x-csrftoken', 'x-requested-with', 'accept-language'
+]
+
+CORS_EXPOSE_HEADERS = ['Content-Length', 'X-CSRFToken', 'Access-Control-Allow-Origin']
+CORS_ALLOW_CREDENTIALS = True
+
