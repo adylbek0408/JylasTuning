@@ -18,8 +18,6 @@ router.register(r'rear-bumpers', RearBumperViewSet)
 router.register(r'side-skirts', SideSkirtViewSet)
 router.register(r'tintings', TintingViewSet)
 router.register(r'colors', ColorViewSet)
-
-
 router.register(r'customizations', UserCarCustomizationViewSet, basename='customization')
 
 urlpatterns = [

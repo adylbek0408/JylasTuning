@@ -25,23 +25,39 @@ class CarBrandSerializer(serializers.ModelSerializer):
 
 class CarModelListSerializer(serializers.ModelSerializer):
     brand_name = serializers.CharField(source='brand.name', read_only=True)
+    coming_soon = serializers.SerializerMethodField()
 
     class Meta:
         model = CarModel
-        fields = ['id', 'name', 'brand_name', 'preview_image']
+        fields = ['id', 'name', 'brand_name', 'preview_image', 'coming_soon']
+
+    def get_coming_soon(self, obj):
+        flag = obj.coming_soon_flag.first()
+        return flag.coming_soon if flag else False
 
 
 class CarModelDetailSerializer(serializers.ModelSerializer):
     brand = CarBrandSerializer(read_only=True)
+    coming_soon = serializers.SerializerMethodField()
 
     class Meta:
         model = CarModel
-        fields = ['id', 'name', 'brand', 'model_3d', 'preview_image']
+        fields = ['id', 'name', 'brand', 'model_3d', 'preview_image', 'coming_soon']
+
+    def get_coming_soon(self, obj):
+        flag = obj.coming_soon_flag.first()
+        return flag.coming_soon if flag else False
 
 
 class BaseCarPartSerializer(serializers.ModelSerializer):
+    coming_soon = serializers.SerializerMethodField()
+
     class Meta:
-        fields = ['id', 'name', 'model_3d', 'image']
+        fields = ['id', 'name', 'model_3d', 'image', 'coming_soon']
+
+    def get_coming_soon(self, obj):
+        flag = obj.coming_soon_flag.first()
+        return flag.coming_soon if flag else False
 
 
 class SpoilerSerializer(BaseCarPartSerializer):

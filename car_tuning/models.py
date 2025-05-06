@@ -1,5 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
+
+class ComingSoon(models.Model):
+    coming_soon = models.BooleanField(default=False, verbose_name="Скоро появится")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        verbose_name = "Флаг Скоро"
+        verbose_name_plural = "Флаги Скоро"
 
 
 class CarBrand(models.Model):
@@ -17,8 +30,9 @@ class CarBrand(models.Model):
 class CarModel(models.Model):
     brand = models.ForeignKey(CarBrand, on_delete=models.CASCADE, related_name='models', verbose_name="Бренд")
     name = models.CharField(max_length=100, verbose_name="Название модели")
-    model_3d = models.FileField(upload_to='cars/3d_models/', verbose_name="3D модель")
+    model_3d = models.FileField(upload_to='cars/3d_models/', verbose_name="3D модель", blank=True, null=True)
     preview_image = models.FileField(upload_to='cars/preview/', blank=True, null=True, verbose_name="Превью")
+    coming_soon_flag = GenericRelation(ComingSoon)
 
     def __str__(self):
         return f"{self.brand.name} {self.name}"
@@ -48,42 +62,56 @@ class BaseCarPart(models.Model):
 
 
 class Spoiler(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Спойлер"
         verbose_name_plural = "Спойлеры"
 
 
 class Discs(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Диски"
         verbose_name_plural = "Диски"
 
 
 class Restyling(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Рестайлинг"
         verbose_name_plural = "Рестайлинг"
 
 
 class Bumper(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Передний бампер"
         verbose_name_plural = "Передние бамперы"
 
 
 class RearBumper(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Задний бампер"
         verbose_name_plural = "Задние бамперы"
 
 
 class SideSkirt(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Боковая юбка"
         verbose_name_plural = "Боковые юбки"
 
 
 class Tinting(BaseCarPart):
+    coming_soon_flag = GenericRelation(ComingSoon)
+
     class Meta:
         verbose_name = "Тонировка"
         verbose_name_plural = "Тонировки"

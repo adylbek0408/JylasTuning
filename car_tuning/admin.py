@@ -1,9 +1,19 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.contrib.contenttypes.admin import GenericTabularInline
 from .models import (
-    CarBrand, CarModel, Spoiler, Discs, Restyling, Bumper,
-    RearBumper, SideSkirt, Tinting, Color, UserCarCustomization
+    ComingSoon, CarBrand, CarModel, Spoiler, Discs, Restyling,
+    Bumper, RearBumper, SideSkirt, Tinting, Color, UserCarCustomization
 )
+
+
+class ComingSoonInline(GenericTabularInline):
+    model = ComingSoon
+    ct_field = 'content_type'
+    ct_fk_field = 'object_id'
+    extra = 0
+    max_num = 1
+    fields = ('coming_soon',)
 
 
 @admin.register(CarBrand)
@@ -26,9 +36,10 @@ class CarBrandAdmin(admin.ModelAdmin):
 
 @admin.register(CarModel)
 class CarModelAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'brand', 'display_preview')
+    list_display = ('__str__', 'brand', 'display_preview', 'get_coming_soon')
     list_filter = ('brand',)
     search_fields = ('name', 'brand__name')
+    inlines = [ComingSoonInline]
 
     def display_preview(self, obj):
         if obj.preview_image:
@@ -37,12 +48,20 @@ class CarModelAdmin(admin.ModelAdmin):
 
     display_preview.short_description = "Превью"
 
+    def get_coming_soon(self, obj):
+        flag = obj.coming_soon_flag.first()
+        return flag.coming_soon if flag else False
+
+    get_coming_soon.boolean = True
+    get_coming_soon.short_description = "Скоро"
+
 
 class BaseCarPartAdmin(admin.ModelAdmin):
-    list_display = ('name', 'display_image', 'order')
+    list_display = ('name', 'display_image', 'order', 'get_coming_soon')
     list_filter = ('compatible_car_models', 'compatible_car_models__brand')
     search_fields = ('name',)
     filter_horizontal = ('compatible_car_models',)
+    inlines = [ComingSoonInline]
 
     def display_image(self, obj):
         if obj.image:
@@ -50,6 +69,13 @@ class BaseCarPartAdmin(admin.ModelAdmin):
         return "Нет изображения"
 
     display_image.short_description = "Изображение"
+
+    def get_coming_soon(self, obj):
+        flag = obj.coming_soon_flag.first()
+        return flag.coming_soon if flag else False
+
+    get_coming_soon.boolean = True
+    get_coming_soon.short_description = "Скоро"
 
 
 @admin.register(Spoiler)
@@ -94,7 +120,7 @@ class ColorAdmin(admin.ModelAdmin):
 
     def display_color(self, obj):
         return format_html(
-            '<div style="width:30px; height:30px; background-color:{0}; border:1px solid #ccc"></div>',
+            '<div style="width:30px; height:30px; background-color:{}; border:1px solid #ccc"></div>',
             obj.hex_code
         )
 
@@ -118,3 +144,4 @@ class UserCarCustomizationAdmin(admin.ModelAdmin):
             )
         }),
     )
+
