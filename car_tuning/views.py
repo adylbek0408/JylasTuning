@@ -28,14 +28,14 @@ class CarBrandViewSet(viewsets.ReadOnlyModelViewSet):
 
 class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API для моделей авто. Отфильтровывает скрытые по coming_soon_flag.
+    API для моделей авто.
     """
     queryset = CarModel.objects.select_related('brand').all()
     serializer_class = CarModelSerializer
 
     def get_serializer(self, *args, **kwargs):
-        # Добавляем параметр detail в зависимости от действия
-        kwargs['detail'] = self.action != 'list'
+        # Всегда возвращаем подробную информацию о модели
+        kwargs['detail'] = True
         return super().get_serializer(*args, **kwargs)
 
     @action(detail=True, methods=['get'])
