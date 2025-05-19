@@ -10,7 +10,7 @@ from .models import (
     RearBumper, SideSkirt, Tinting, Color, UserCarCustomization
 )
 from .serializers import (
-    CarBrandSerializer, CarModelListSerializer, CarModelDetailSerializer,
+    CarBrandSerializer, CarModelSerializer,
     SpoilerSerializer, DiscsSerializer, RestylingSerializer, BumperSerializer,
     RearBumperSerializer, SideSkirtSerializer, TintingSerializer, ColorSerializer,
     UserCarCustomizationListSerializer, UserCarCustomizationDetailSerializer,
