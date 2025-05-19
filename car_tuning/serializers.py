@@ -23,31 +23,35 @@ class CarBrandSerializer(serializers.ModelSerializer):
         return obj.models.count()
 
 
-class CarModelListSerializer(serializers.ModelSerializer):
+class CarModelSerializer(serializers.ModelSerializer):
+    """
+    Универсальный сериализатор для моделей автомобилей.
+    При detail=True включает полный объект brand, иначе только brand_name.
+    """
     brand_name = serializers.CharField(source='brand.name', read_only=True)
-    coming_soon = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CarModel
-        fields = ['id', 'name', 'brand_name', 'preview_image', 'coming_soon']
-
-    def get_coming_soon(self, obj):
-        flag = obj.coming_soon_flag.first()
-        return flag.coming_soon if flag else False
-
-
-class CarModelDetailSerializer(serializers.ModelSerializer):
     brand = CarBrandSerializer(read_only=True)
     coming_soon = serializers.SerializerMethodField()
 
     class Meta:
         model = CarModel
-        fields = ['id', 'name', 'brand', 'model_3d', 'preview_image', 'coming_soon']
+        fields = ['id', 'name', 'brand', 'brand_name', 'model_3d', 'preview_image', 'coming_soon']
+
+    def __init__(self, *args, **kwargs):
+        # Извлекаем параметр detail, по умолчанию False
+        self.detail = kwargs.pop('detail', False)
+        super().__init__(*args, **kwargs)
+
+        # Если не detail-представление, убираем лишние поля
+        if not self.detail:
+            self.fields.pop('brand')
+            self.fields.pop('model_3d')
+        else:
+            # Если detail-представление, убираем brand_name (т.к. есть полный brand)
+            self.fields.pop('brand_name')
 
     def get_coming_soon(self, obj):
         flag = obj.coming_soon_flag.first()
         return flag.coming_soon if flag else False
-
 
 class BaseCarPartSerializer(serializers.ModelSerializer):
     coming_soon = serializers.SerializerMethodField()
