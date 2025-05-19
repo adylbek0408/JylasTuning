@@ -21,5 +21,5 @@ router.register(r'colors', ColorViewSet)
 router.register(r'customizations', UserCarCustomizationViewSet, basename='customization')
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]

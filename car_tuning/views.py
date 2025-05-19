@@ -39,13 +39,6 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
             else CarModelDetailSerializer
         )
 
-    def get_queryset(self):
-        qs = self.queryset.filter(coming_soon_flag__coming_soon=False)
-        brand_id = self.request.query_params.get('brand_id')
-        if brand_id:
-            qs = qs.filter(brand_id=brand_id)
-        return qs
-
     @action(detail=True, methods=['get'])
     def compatible_parts(self, request, pk=None):
         """
