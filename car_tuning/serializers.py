@@ -53,6 +53,7 @@ class CarModelSerializer(serializers.ModelSerializer):
         flag = obj.coming_soon_flag.first()
         return flag.coming_soon if flag else False
 
+
 class BaseCarPartSerializer(serializers.ModelSerializer):
     coming_soon = serializers.SerializerMethodField()
 
@@ -108,7 +109,7 @@ class UserCarCustomizationListSerializer(serializers.ModelSerializer):
 
 
 class UserCarCustomizationDetailSerializer(serializers.ModelSerializer):
-    car_model = CarModelDetailSerializer(read_only=True)
+    car_model = CarModelSerializer(read_only=True, detail=True)
     color = ColorSerializer(read_only=True)
     tinting = TintingSerializer(read_only=True)
     spoiler = SpoilerSerializer(read_only=True)
