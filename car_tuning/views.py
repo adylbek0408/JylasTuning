@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 
 from .models import (
@@ -10,7 +10,7 @@ from .models import (
     RearBumper, SideSkirt, Tinting, Color, UserCarCustomization
 )
 from .serializers import (
-    CarBrandSerializer, CarModelSerializer,
+    CarBrandSerializer, CarModelSerializer, CarModelDetailSerializer,
     SpoilerSerializer, DiscsSerializer, RestylingSerializer, BumperSerializer,
     RearBumperSerializer, SideSkirtSerializer, TintingSerializer, ColorSerializer,
     UserCarCustomizationListSerializer, UserCarCustomizationDetailSerializer,
@@ -31,21 +31,33 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
     API для моделей авто.
     """
     queryset = CarModel.objects.select_related('brand').all()
-    serializer_class = CarModelSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return CarModelDetailSerializer
+        return CarModelSerializer
 
     def get_serializer(self, *args, **kwargs):
         # Всегда возвращаем подробную информацию о модели
         kwargs['detail'] = True
         return super().get_serializer(*args, **kwargs)
 
-    @action(detail=True, methods=['get'])
-    def compatible_parts(self, request, pk=None):
-        """
-        Возвращает для данной модели авто все совместимые части,
-        отфильтрованные по coming_soon_flag=False.
-        """
-        car_model = self.get_object()
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Получаем все совместимые части для этой модели
+        compatible_parts = self.get_compatible_parts(instance)
 
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        # Добавляем совместимые части к ответу
+        data.update(compatible_parts)
+
+        return Response(data)
+
+    def get_compatible_parts(self, car_model):
+        """
+        Получает все совместимые части для данной модели авто.
+        """
         mapping = {
             'spoilers': (Spoiler, SpoilerSerializer),
             'discs': (Discs, DiscsSerializer),
@@ -68,6 +80,16 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
         colors = Color.objects.all().order_by('order')
         data['colors'] = ColorSerializer(colors, many=True).data
 
+        return data
+
+    @action(detail=True, methods=['get'])
+    def compatible_parts(self, request, pk=None):
+        """
+        Возвращает для данной модели авто все совместимые части,
+        отфильтрованные по coming_soon_flag=False.
+        """
+        car_model = self.get_object()
+        data = self.get_compatible_parts(car_model)
         return Response(data)
 
 
@@ -193,3 +215,5 @@ class UserCarCustomizationViewSet(viewsets.ModelViewSet):
         customization.save()
 
         return Response(UserCarCustomizationDetailSerializer(customization).data)
+
+

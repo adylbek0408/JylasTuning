@@ -100,6 +100,17 @@ class TintingSerializer(BaseCarPartSerializer):
         model = Tinting
 
 
+class CarModelDetailSerializer(CarModelSerializer):
+    """
+    Расширенный сериализатор для моделей автомобилей,
+    включающий все совместимые детали.
+    """
+
+    class Meta(CarModelSerializer.Meta):
+        model = CarModel
+        fields = ['id', 'name', 'brand', 'model_3d', 'preview_image', 'coming_soon']
+
+
 class UserCarCustomizationListSerializer(serializers.ModelSerializer):
     car_model_name = serializers.CharField(source='car_model.__str__', read_only=True)
 
