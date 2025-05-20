@@ -47,7 +47,8 @@ class CarModelSerializer(serializers.ModelSerializer):
             self.fields.pop('model_3d')
         else:
             # Если detail-представление, убираем brand_name (т.к. есть полный brand)
-            self.fields.pop('brand_name')
+            if 'brand_name' in self.fields:
+                self.fields.pop('brand_name')
 
     def get_coming_soon(self, obj):
         flag = obj.coming_soon_flag.first()
@@ -102,7 +103,7 @@ class TintingSerializer(BaseCarPartSerializer):
 
 class CarModelDetailSerializer(CarModelSerializer):
     """
-    Расширенный сериализатор для моделей автомобилей,
+    Расширенный сериализатор для моделей автомобилей, 
     включающий все совместимые детали.
     """
 
@@ -170,3 +171,4 @@ class CompatiblePartsSerializer(serializers.Serializer):
     side_skirts = SideSkirtSerializer(many=True, read_only=True)
     tintings = TintingSerializer(many=True, read_only=True)
     colors = ColorSerializer(many=True, read_only=True)
+   

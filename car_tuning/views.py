@@ -31,16 +31,46 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
     API для моделей авто.
     """
     queryset = CarModel.objects.select_related('brand').all()
-
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return CarModelDetailSerializer
-        return CarModelSerializer
+    serializer_class = CarModelSerializer
 
     def get_serializer(self, *args, **kwargs):
         # Всегда возвращаем подробную информацию о модели
         kwargs['detail'] = True
         return super().get_serializer(*args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        response_data = []
+        if page is not None:
+            # Проходим по каждой модели на странице
+            for model in page:
+                # Сериализуем модель
+                serializer = self.get_serializer(model)
+                model_data = serializer.data
+                # Добавляем совместимые части
+                compatible_parts = self.get_compatible_parts(model)
+                for key, value in compatible_parts.items():
+                    if key != 'colors':  # Исключаем цвета, как указано в требовании
+                        model_data[key] = value
+                response_data.append(model_data)
+
+            return self.get_paginated_response(response_data)
+
+        # Без пагинации
+        response_data = []
+        for model in queryset:
+            serializer = self.get_serializer(model)
+            model_data = serializer.data
+            # Добавляем совместимые части
+            compatible_parts = self.get_compatible_parts(model)
+            for key, value in compatible_parts.items():
+                if key != 'colors':  # Исключаем цвета, как указано в требовании
+                    model_data[key] = value
+            response_data.append(model_data)
+
+        return Response(response_data)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -49,8 +79,10 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(instance)
         data = serializer.data
-        # Добавляем совместимые части к ответу
-        data.update(compatible_parts)
+        # Добавляем совместимые части к ответу, кроме цветов
+        for key, value in compatible_parts.items():
+            if key != 'colors':  # Исключаем цвета, как указано в требовании
+                data[key] = value
 
         return Response(data)
 
@@ -71,9 +103,11 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
         data = {}
         for key, (model_cls, serializer_cls) in mapping.items():
             parts_qs = model_cls.objects.filter(
-                compatible_car_models=car_model,
-                coming_soon_flag__coming_soon=False
+                compatible_car_models=car_model
             ).order_by('order')
+            # Фильтруем только те, у которых coming_soon=False
+            if key != 'colors':  # У Color нет coming_soon_flag
+                parts_qs = parts_qs.filter(coming_soon_flag__coming_soon=False)
             data[key] = serializer_cls(parts_qs, many=True).data
 
         # Цвета (у Color нет флага coming_soon_flag)
@@ -215,5 +249,3 @@ class UserCarCustomizationViewSet(viewsets.ModelViewSet):
         customization.save()
 
         return Response(UserCarCustomizationDetailSerializer(customization).data)
-
-
