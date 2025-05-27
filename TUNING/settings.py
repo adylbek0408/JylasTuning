@@ -13,9 +13,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "89.169.44.186",
+    "localhost",
+    "127.0.0.1",
+    "julas.cicada.kz",
+    "www.julas.cicada.kz"
+]
 
-# Application definition
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -260,23 +265,30 @@ SWAGGER_SETTINGS = {
 
 CSRF_TRUSTED_ORIGINS = [
     "http://89.169.44.186:8080",
-    "http://89.169.44.186",  # Добавь без порта
+    "http://89.169.44.186",
     "http://localhost:8080",
+    "http://localhost:3000",
+    "http://localhost:4000",
     "http://127.0.0.1:8080",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:4000",
+    "http://julas.cicada.kz",
+    "https://julas.cicada.kz",
 ]
 
-
+# 3. Исправленные CORS_ALLOWED_ORIGINS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:4000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:4000",
     "http://89.169.44.186:8080",
-    "http://89.169.44.186",  # Добавь без порта
-    "http://julas.cicada.kz",  # Убрал слэш в конце
-    "https://julas.cicada.kz", # Добавь HTTPS версию
+    "http://89.169.44.186",
+    "http://julas.cicada.kz",
+    "https://julas.cicada.kz",
 ]
 
+# 4. Остальные CORS настройки
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
 
 CORS_ALLOW_HEADERS = [
@@ -290,7 +302,7 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
     'accept-language',
-    'cache-control',  # Добавь для кэширования
+    'cache-control',
     'pragma',
 ]
 
@@ -303,7 +315,8 @@ CORS_EXPOSE_HEADERS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
 CORS_ALLOW_ALL_ORIGINS = False
 
-
+# 5. Дополнительная настройка для безопасности
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
