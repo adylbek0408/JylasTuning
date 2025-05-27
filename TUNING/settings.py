@@ -260,11 +260,11 @@ SWAGGER_SETTINGS = {
 
 CSRF_TRUSTED_ORIGINS = [
     "http://89.169.44.186:8080",
+    "http://89.169.44.186",  # Добавь без порта
     "http://localhost:8080",
     "http://127.0.0.1:8080",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -272,15 +272,38 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:4000",
     "http://89.169.44.186:8080",
-    "http://julas.cicada.kz/"
+    "http://89.169.44.186",  # Добавь без порта
+    "http://julas.cicada.kz",  # Убрал слэш в конце
+    "https://julas.cicada.kz", # Добавь HTTPS версию
 ]
 
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+
 CORS_ALLOW_HEADERS = [
-    'accept', 'accept-encoding', 'authorization', 'content-type', 'dnt',
-    'origin', 'user-agent', 'x-csrftoken', 'x-requested-with', 'accept-language'
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'accept-language',
+    'cache-control',  # Добавь для кэширования
+    'pragma',
 ]
 
-CORS_EXPOSE_HEADERS = ['Content-Length', 'X-CSRFToken', 'Access-Control-Allow-Origin']
+CORS_EXPOSE_HEADERS = [
+    'Content-Length',
+    'X-CSRFToken',
+    'Access-Control-Allow-Origin',
+    'Content-Type',
+    'Cache-Control',
+]
+
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS = False
+
 
